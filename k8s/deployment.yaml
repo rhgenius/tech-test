@@ -1,0 +1,71 @@
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: buddyku-prod
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      component: frontend
+  template:
+    metadata:
+      labels:
+        component: frontend
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+        - name: frontend
+          image: ${this should be change with the link to ECR which Docker image push after build}.dkr.ecr.ap-southeast-1.amazonaws.com/frontend/frontend:production-latest
+          resources:
+            limits:
+              cpu: 1.0
+              memory: 2G
+            requests:
+              cpu: 0.5
+              memory: 2G
+          ports:
+            - containerPort: 9000
+          envFrom:
+            - configMapRef:
+                name: frontend-config
+---
+kind: Deployment
+metadata:
+  name: backend-deployment
+  namespace: buddyku-prod
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      component: backend
+  template:
+    metadata:
+      labels:
+        component: backend
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+      containers:
+        - name: backend
+          image: ${this should be change with the link to ECR which Docker image push after build}.dkr.ecr.ap-southeast-1.amazonaws.com/backend/backend:production-latest
+          resources:
+            limits:
+              cpu: 1.0
+              memory: 2G
+            requests:
+              cpu: 0.5
+              memory: 2G
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: backend-config
